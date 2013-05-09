@@ -1,13 +1,10 @@
-fromStream("ReportedIssues")
-.partitionBy(function (e) { return e.body.value.Reporter; })
+fromCategory("Issue")
+.foreachStream()
 .when({
-  $init: function () {
-    return [];
-  },
-
   Reported: function (s, e) {
-    var id = e.streamId.replace("Issue-", "");
-    s.push(id);
-    return s;
+    linkTo("IssuesBy-" + e.body.value.Reporter, e);
   },
+  Taken: function (s, e) {
+    linkTo("IssuesBy-" + e.body.value.User, e);
+  }
 });

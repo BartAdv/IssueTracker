@@ -7,10 +7,11 @@ type Summary = string
 type Reason = string
 
 type ReportData = { Number: int; Reporter: User; Summary: Summary }
+type TakeData = { User: User; Time: DateTime }
 
 type IssueState =
   | Logged of ReportData
-  | Active of User * DateTime
+  | Active of TakeData
   | Closed of DateTime
   | Cancelled of Reason
 
@@ -18,7 +19,7 @@ type Issue = { State: IssueState list }
 
 type Event =
   | Reported of ReportData
-  | Taken of User * DateTime
+  | Taken of TakeData
   | Closed of DateTime
   | Cancelled of Reason
 
@@ -32,7 +33,7 @@ type Command =
 let apply issue =
   function
   | Reported(data) -> { issue with State = [Logged(data)]}
-  | Taken(user, time) -> { issue with State = Active(user, time)::issue.State }
+  | Taken(data) -> { issue with State = Active(data)::issue.State }
   | Closed(time) -> { issue with State = IssueState.Closed(time)::issue.State }
   | Cancelled(reason) -> { issue with State = IssueState.Cancelled(reason)::issue.State }
    
@@ -44,7 +45,7 @@ let exec { State = state } =
       | _ -> invalidOp "state"
     | Take (user, time) -> 
       match state with 
-      | Logged(_)::_ -> Taken (user, time)
+      | Logged(_)::_ -> Taken ({User = user; Time = time})
       | _ -> invalidOp "state"
     | Close time -> 
       match state with 
@@ -52,5 +53,5 @@ let exec { State = state } =
       | _ -> invalidOp "state"
     | Cancel reason -> 
       match state with
-      | Logged(_)::[] | Active(_,_)::_ -> Cancelled reason
+      | Logged(_)::[] | Active(_)::_ -> Cancelled reason
       | _ -> invalidOp "state"

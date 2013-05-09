@@ -19,14 +19,34 @@ let connection =
 
 let handle = Aggregate.handle (EventStore.commit connection "Issue" Serialization.serialize) aggregate
 
-let id1 = Guid.NewGuid().ToString("N")
-let issue1 = Issue.Report(1, "user2", "brelam brelam") |> handle id1 aggregate.zero
-let issue1' = Issue.Cancel("feee") |> handle id1 issue1
-  
-let id2 = Guid.NewGuid().ToString("N")
-let issue2 = Issue.Report(2, "user2", "good desc") |> handle id2 aggregate.zero
-let issue2'= Issue.Take("analyst", DateTime.Now) |> handle id2 issue2
-let issue2'' = Issue.Close(DateTime.Now) |> handle id2 issue2'
 
-let id3 = Guid.NewGuid().ToString("N")
-let issue3 = Issue.Report(3, "user", "woosh") |> handle id3 aggregate.zero
+let (|>>) a b = (b,a) 
+
+let report (num, user, summary) =
+  let id = Guid.NewGuid().ToString("N")
+  Issue.Report(num, user, summary)
+  |> handle id aggregate.zero
+  |>> id
+
+let take user (id, state) =
+  Issue.Take(user, DateTime.Now)
+  |> handle id state
+  |>> id
+
+let close (id, state) =
+  Issue.Close(DateTime.Now)
+  |> handle id state
+  |>> id
+
+let cancel reason (id, state) =
+  Issue.Cancel(reason)
+  |> handle id state
+  |>> id
+
+
+report (1, "user2", "brelam brelam")
+|> take "dev"
+|> cancel("feee")
+
+let sub = connection.SubscribeToAll(true, fun sub (evt:EventStore.ClientAPI.ResolvedEvent) -> printfn "%s" evt.Event.EventType)
+sub.RunSynchronously()
