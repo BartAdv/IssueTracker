@@ -11,10 +11,10 @@ fromCategory("Issue")
   },
 
   Reported: function (s, e) {
-    s.Number = e.body.value.Number;
+    s.Number = e.body.Number;
     s.Status = "Logged";
-    s.Reporter = e.body.value.Reporter;
-    s.Summary = e.body.value.Summary;
+    s.Reporter = e.body.Reporter;
+    s.Summary = e.body.Summary;
     return s;
   },
 

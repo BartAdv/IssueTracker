@@ -120,17 +120,13 @@ module private JsonNet =
         override x.WriteJson(writer, value, serializer) =
             let t = value.GetType()
             let caseInfo,fieldValues = FSharpValue.GetUnionFields(value, t)
-            writer.WriteStartObject()
-            writer.WritePropertyName("case")
-            writer.WriteValue(caseInfo.Name)
-            writer.WritePropertyName("value")
+
             let value = 
                 match fieldValues.Length with
                 | 0 -> null
                 | 1 -> fieldValues.[0]
                 | _ -> fieldValues :> obj
             serializer.Serialize(writer, value)
-            writer.WriteEndObject()
 
         override x.ReadJson(reader, t, _, serializer) =
 
@@ -218,27 +214,28 @@ module private JsonNet =
         (eventType o),data
 
     let deserialize (t, et:string, data:byte array) =
+      match t with
+      | t when FSharpType.IsUnion(t) ->
+        let case = FSharpType.GetUnionCases(t) |> Seq.find (fun c -> c.Name = et)
+        let fields = case.GetFields()
+        let t' =         
+            match fields.Length with
+            | 0 -> null
+            | 1 -> fields.[0].PropertyType
+            | _ -> FSharpType.MakeTupleType(fields |> Seq.map (fun f -> f.PropertyType) |> Seq.toArray)
+        if t' <> null then
+            use reader = new StreamReader(new MemoryStream(data), Encoding.UTF8)
+            let body = s.Deserialize(reader, t')
+            let args = 
+                if FSharpType.IsTuple(t') then FSharpValue.GetTupleFields(body)
+                elif body <> null then [|body|]
+                else [||]
+            FSharpValue.MakeUnion(case, args)
+        else null
+      | t ->
         use ms = new MemoryStream(data)
         use jsonReader = new JsonTextReader(new StreamReader(ms))
         s.Deserialize(jsonReader, t)
-
-//    let deserialize (t, et:string, data:byte array) =
-//        let case = FSharpType.GetUnionCases(t) |> Seq.find (fun c -> c.Name = et)
-//        let fields = case.GetFields()
-//        let t' =         
-//            match fields.Length with
-//            | 0 -> null
-//            | 1 -> fields.[0].PropertyType
-//            | _ -> FSharpType.MakeTupleType(fields |> Seq.map (fun f -> f.PropertyType) |> Seq.toArray)
-//        if t' <> null then
-//            use reader = new StreamReader(new MemoryStream(data), Encoding.UTF8)
-//            let body = s.Deserialize(reader, t')
-//            let args = 
-//                if FSharpType.IsTuple(t') then FSharpValue.GetTupleFields(body)
-//                elif body <> null then [|body|]
-//                else [||]
-//            FSharpValue.MakeUnion(case, args)
-//        else null
 
 let serialize = JsonNet.serialize
 let deserialize = JsonNet.deserialize

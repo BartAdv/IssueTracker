@@ -7,6 +7,7 @@
 
 open System
 open IssueTracker
+open Microsoft.FSharp.Reflection
 
 let aggregate: Aggregate.Aggregate<_,_,_> =
  {zero = { Issue.State = [] };
@@ -19,6 +20,8 @@ let connection =
 
 let handle = Aggregate.handle (EventStore.commit connection "Issue" Serialization.serialize) aggregate
 
+let loadIssue id = 
+  Aggregate.load (EventStore.load connection "Issue" Serialization.deserialize) aggregate (typeof<Issue.Event>, id)
 
 let (|>>) a b = (b,a) 
 
@@ -48,5 +51,5 @@ report (1, "user2", "brelam brelam")
 |> take "dev"
 |> cancel("feee")
 
-let sub = connection.SubscribeToAll(true, fun sub (evt:EventStore.ClientAPI.ResolvedEvent) -> printfn "%s" evt.Event.EventType)
-sub.RunSynchronously()
+//let sub = connection.SubscribeToAll(true, fun sub (evt:EventStore.ClientAPI.ResolvedEvent) -> printfn "%s" evt.Event.EventType)
+//sub.RunSynchronously()
