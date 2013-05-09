@@ -18,10 +18,13 @@ let connection =
   System.Net.IPEndPoint(System.Net.IPAddress.Parse("127.0.0.1"), 1113)
   |> EventStore.conn
 
-let handle = Aggregate.handle (EventStore.commit connection "Issue" Serialization.serialize) aggregate
+let handle id state =
+  Aggregate.handle (EventStore.commit connection Serialization.serialize) aggregate ("Issue-"+id) state
+
+let loadEvents pred (t,streamId) = EventStore.load connection Serialization.deserialize pred (t, streamId)
 
 let loadIssue id = 
-  Aggregate.load (EventStore.load connection "Issue" Serialization.deserialize) aggregate (typeof<Issue.Event>, id)
+  Aggregate.load (loadEvents (fun _ -> true) (typeof<Issue.Event>, ("Issue-"+id))) aggregate
 
 let (|>>) a b = (b,a) 
 

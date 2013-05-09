@@ -16,8 +16,7 @@ type Aggregate<'TState, 'TCommand, 'TEvent> = {
     exec : 'TState -> 'TCommand -> 'TEvent;
 }
 
-let load loadEvents (aggregate:Aggregate<'TState, 'TCommand, 'TEvent>) id =
-  let events = loadEvents id
+let load events (aggregate:Aggregate<'TState, 'TCommand, 'TEvent>) =
   let events = events |> Seq.cast :> 'TEvent seq
   Seq.fold aggregate.apply aggregate.zero events
     

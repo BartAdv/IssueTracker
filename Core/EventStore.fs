@@ -13,15 +13,11 @@ let conn endPoint =
     conn.Connect(endPoint)
     conn
 
-let streamId category id = category + "-" + id
-
-let load (conn:EventStoreConnection) category deserialize (t,id) =
-  let streamId = streamId category id
-  let slice = conn.ReadStreamEventsForward(streamId, 1, Int32.MaxValue, false)
+let load (conn:EventStoreConnection) deserialize pred (t,streamId) =
+  let slice = conn.ReadStreamEventsForward(streamId, 1, Int32.MaxValue, true)
   slice.Events |> Seq.map (fun e -> deserialize(t, e.Event.EventType, e.Event.Data))
 
-let commit (conn:EventStoreConnection) category serialize id e =
-  let streamId = streamId category id
+let commit (conn:EventStoreConnection) serialize streamId e =
   let eventType,data = serialize e
   let metaData = [||] : byte array
   let eventData = new EventData(Guid.NewGuid(), eventType, true, data, metaData)
