@@ -40,7 +40,6 @@
     <Compile Include="Aggregate.fs" />
     <Content Include="IssueReadModel.js" />
     <Content Include="IssuesByUser.js" />
-    <Content Include="ReportedIssues.js" />
     <Compile Include="Serialization.fs" />
     <Compile Include="Issue.fs" />
     <None Include="Script.fsx" />
