@@ -13,9 +13,9 @@ let conn endPoint =
     conn.Connect(endPoint)
     conn
 
-let load (conn:EventStoreConnection) deserialize pred (t,streamId) =
+let load (conn:EventStoreConnection) deserialize (pred: ResolvedEvent->bool) streamId =
   let slice = conn.ReadStreamEventsForward(streamId, 1, Int32.MaxValue, true)
-  slice.Events |> Seq.map (fun e -> deserialize(t, e.Event.EventType, e.Event.Data))
+  slice.Events |> Seq.map (fun e -> deserialize(e.Event.EventType, e.Event.Data))
 
 let commit (conn:EventStoreConnection) serialize streamId e =
   let eventType,data = serialize e

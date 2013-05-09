@@ -213,8 +213,9 @@ module private JsonNet =
         let data = ms.ToArray()
         (eventType o),data
 
-    let deserialize (t, et:string, data:byte array) =
-      match t with
+    let deserialize<'T> (et:string, data:byte array) =
+      printfn "%s" (typeof<'T>.Name)
+      match typeof<'T> with
       | t when FSharpType.IsUnion(t) ->
         let case = FSharpType.GetUnionCases(t) |> Seq.find (fun c -> c.Name = et)
         let fields = case.GetFields()
@@ -230,17 +231,13 @@ module private JsonNet =
                 if FSharpType.IsTuple(t') then FSharpValue.GetTupleFields(body)
                 elif body <> null then [|body|]
                 else [||]
-            FSharpValue.MakeUnion(case, args)
-        else null
+            FSharpValue.MakeUnion(case, args) :?> 'T
+        else failwith "unable to deserialize"
       | t ->
-        use ms = new MemoryStream(data)
-        use jsonReader = new JsonTextReader(new StreamReader(ms))
-        s.Deserialize(jsonReader, t)
+        let json = Encoding.UTF8.GetString(data)
+        JsonConvert.DeserializeObject<'T>(json)
 
 let serialize = JsonNet.serialize
 let deserialize = JsonNet.deserialize
 
-let deserializet<'T> (data:byte array) =
-    let json = Encoding.UTF8.GetString(data)
-    JsonConvert.DeserializeObject<'T>(json)
     

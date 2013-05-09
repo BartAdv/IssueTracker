@@ -21,10 +21,15 @@ let connection =
 let handle id state =
   Aggregate.handle (EventStore.commit connection Serialization.serialize) aggregate ("Issue-"+id) state
 
-let loadEvents pred (t,streamId) = EventStore.load connection Serialization.deserialize pred (t, streamId)
+let loadEvents pred streamId = EventStore.load connection Serialization.deserialize pred streamId
 
 let loadIssue id = 
-  Aggregate.load (loadEvents (fun _ -> true) (typeof<Issue.Event>, ("Issue-"+id))) aggregate
+  let events : seq<Issue.Event> = (loadEvents (fun _ -> true) ("Issue-"+id))
+  Aggregate.load events aggregate
+
+let loadReportedIssues user =
+  let events : seq<Issue.Event> = loadEvents (fun e -> e.Event.EventType = "Reported") ("IssuesBy-"+user)
+  events |> Seq.map (function Issue.Reported({Summary=summary; Number=number}) -> number, summary | _ -> failwith "invalid event type")
 
 let (|>>) a b = (b,a) 
 
