@@ -37,13 +37,11 @@
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets" Condition=" Exists('$(MSBuildExtensionsPath32)\..\Microsoft SDKs\F#\3.0\Framework\v4.0\Microsoft.FSharp.Targets')" />
   <ItemGroup>
-    <Compile Include="Aggregate.fs" />
     <Content Include="IssueReadModel.js" />
     <Content Include="IssuesByUser.js" />
     <Compile Include="Serialization.fs" />
     <Compile Include="Issue.fs" />
     <None Include="Script.fsx" />
-    <Compile Include="EventStore.fs" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

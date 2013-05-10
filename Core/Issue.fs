@@ -17,6 +17,8 @@ type IssueState =
 
 type Issue = { State: IssueState list }
 
+let empty = { State = [] }
+
 type Event =
   | Reported of ReportData
   | Taken of User * DateTime
