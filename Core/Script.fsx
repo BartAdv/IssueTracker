@@ -1,9 +1,7 @@
 ﻿#load "Issue.fs"
-#load "Aggregate.fs"
 #r @"D:\sources\IssueTracker\packages\Newtonsoft.Json.5.0.4\lib\net45\Newtonsoft.Json.dll"
 #load "Serialization.fs"
 #r @"D:\sources\IssueTracker\packages\EventStore.Client.1.1.0\lib\net40\EventStore.ClientAPI.dll"
-#load "EventStore.fs"
 
 open System
 open IssueTracker

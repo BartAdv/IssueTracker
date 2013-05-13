@@ -5,12 +5,12 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>57ff2ee2-9068-4821-b8a4-8c8cc20b37f4</ProjectGuid>
+    <ProjectGuid>ed75369c-c165-43df-b243-7f55892a6cae</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>WebAPI</RootNamespace>
-    <AssemblyName>WebAPI</AssemblyName>
+    <RootNamespace>ReadModels.SQL</RootNamespace>
+    <AssemblyName>ReadModels.SQL</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <Name>WebAPI</Name>
+    <Name>ReadModels.SQL</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,7 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Debug\WebAPI.XML</DocumentationFile>
+    <DocumentationFile>bin\Debug\ReadModels.SQL.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -32,72 +32,35 @@
     <DefineConstants>TRACE</DefineConstants>
     <WarningLevel>3</WarningLevel>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <DocumentationFile>bin\Release\WebAPI.XML</DocumentationFile>
+    <DocumentationFile>bin\Release\ReadModels.SQL.XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="EventStore.ClientAPI">
-      <HintPath>..\packages\EventStore.Client.1.1.0\lib\net40\EventStore.ClientAPI.dll</HintPath>
+    <Reference Include="EventStore.ClientAPI, Version=1.1.0.0, Culture=neutral, PublicKeyToken=null">
       <Private>True</Private>
     </Reference>
+    <Reference Include="FSharp.Data.TypeProviders, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
     </Reference>
-    <Reference Include="ServiceStack">
-      <HintPath>..\packages\ServiceStack.3.9.44\lib\net35\ServiceStack.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Common">
-      <HintPath>..\packages\ServiceStack.Common.3.9.44\lib\net35\ServiceStack.Common.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Interfaces">
-      <HintPath>..\packages\ServiceStack.Common.3.9.44\lib\net35\ServiceStack.Interfaces.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.OrmLite">
-      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.44\lib\ServiceStack.OrmLite.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.OrmLite.SqlServer">
-      <HintPath>..\packages\ServiceStack.OrmLite.SqlServer.3.9.44\lib\ServiceStack.OrmLite.SqlServer.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Redis">
-      <HintPath>..\packages\ServiceStack.Redis.3.9.44\lib\net35\ServiceStack.Redis.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.ServiceInterface">
-      <HintPath>..\packages\ServiceStack.3.9.44\lib\net35\ServiceStack.ServiceInterface.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="ServiceStack.Text">
-      <HintPath>..\packages\ServiceStack.Text.3.9.44\lib\net35\ServiceStack.Text.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
     <Reference Include="System.Numerics" />
-    <Reference Include="System.Web" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IssueReadModel.fs" />
+    <Compile Include="ReadModels.fs" />
     <None Include="App.config" />
+    <Compile Include="Program.fs" />
     <None Include="packages.config" />
-    <Compile Include="EventStore.fs" />
-    <Compile Include="IssueService.fs" />
-    <Compile Include="UserService.fs" />
-    <Compile Include="AppHost.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.fsproj">
       <Name>Core</Name>
       <Project>{6b9a1f43-d524-4814-9e23-83320eeb0dbd}</Project>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\EventStore.Integration\EventStore.Integration.fsproj">
-      <Name>EventStore.Integration</Name>
-      <Project>{ed75369c-c165-43df-b243-7f55892a6cae}</Project>
       <Private>True</Private>
     </ProjectReference>
   </ItemGroup>

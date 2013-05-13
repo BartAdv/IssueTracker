@@ -214,7 +214,6 @@ module private JsonNet =
         (eventType o),data
 
     let deserialize<'T> (et:string, data:byte array) =
-      printfn "%s" (typeof<'T>.Name)
       match typeof<'T> with
       | t when FSharpType.IsUnion(t) ->
         let case = FSharpType.GetUnionCases(t) |> Seq.find (fun c -> c.Name = et)

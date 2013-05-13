@@ -17,7 +17,7 @@ type IssueState =
 
 type Issue = { State: IssueState list }
 
-let empty = { State = [] }
+let zero = { State = [] }
 
 type Event =
   | Reported of ReportData

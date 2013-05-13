@@ -12,4 +12,4 @@ type AppHost =
     inherit AppHostBase
     new() = { inherit AppHostBase("Issue Tracker services", typeof<AppHost>.Assembly) }
     override this.Configure container =
-        container.RegisterAutoWired<IssueRepository>() |> ignore
+        container.Register<IssueService>(fun c -> IssueService()) |> ignore

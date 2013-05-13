@@ -3,33 +3,35 @@
 open System
 open ServiceStack.ServiceHost
 open IssueTracker
+open IssueTracker.Web
+open IssueTracker.ReadModels
+
+type M = CLIMutableAttribute
 
 [<Route("/user/{User}/issues/reported")>]
-[<CLIMutable>]
-type ReportedIssuesRequest = { User: string }
-[<CLIMutable>] 
-type ReportedIssue = { Number: int; Summary: string }
+[<M>] type ReportedIssuesRequest = { User: string }
+[<M>] type ReportedIssue = { Number: int; Summary: string }
 
 [<Route("/user/{User}/issues/report")>]
-[<CLIMutable>]
-type ReportRequest = { user: string; summary: string }
-[<CLIMutable>]
-type ReportResponse = { id: string }
+[<M>] type ReportRequest = { user: string; summary: string }
+[<M>] type ReportResponse = { id: string }
 
 [<Route("/user/{User}/issues/taken")>]
-[<CLIMutable>]
-type TakenIssuesRequest = { User: string }
+[<M>] type TakenIssuesRequest = { User: string }
 
-[<Route("/issue/{Id}")>]
-type IssueRequest = { id: string }
+[<Route("/issue/{id}/")>]
+[<M>] type IssueRequest = { id: string }
 
-type IssueService(issues: IssueRepository) =
-    let save id evt = issues.Save(id, evt)
+[<Route("/issue/{id}/take")>]
+[<M>] type TakeIssueRequest = { id: string; user: string }
+
+type IssueService(loadIssueEvents, saveIssueEvent, 
+                  readModels: IReadModels) =
 
     interface IService
 
     member this.Get (req:IssueRequest) =
-        let issue = issues.GetIssue(req.id) // normally we'd just use readmodel
+        let issue = readModels.GetIssue(req.id)
         issue
 
     (*member this.Get (req:ReportedIssuesRequest) =
@@ -40,7 +42,20 @@ type IssueService(issues: IssueRepository) =
     member this.Post (req:ReportRequest) =
         let id = "Issue-" + Guid.NewGuid().ToString("N")
         Issue.Report(1, req.user, req.summary) 
-        |> Issue.exec Issue.empty
-        |> save id
+        |> Issue.exec Issue.zero
+        |> saveIssueEvent id
         id
+    member this.Post (req:TakeIssueRequest) =
+        let issue = loadIssueEvents req.id |> Seq.fold Issue.apply Issue.zero
+        Issue.Take(req.user, DateTime.Now)
+        |> Issue.exec issue
+        |> saveIssueEvent req.id
+        "trololo"
 
+    // this helps in object configuration and also aids type inference
+    // so that code above can be clean of annotations as much as possible
+    new() =
+        let conn = EventStore.connect ("localhost", 1113)
+        let load = EventStore.load conn Serialization.deserialize
+        let save = EventStore.save conn Serialization.serialize
+        IssueService(load, save, SqlReadModels())
