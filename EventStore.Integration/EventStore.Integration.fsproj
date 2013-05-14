@@ -52,7 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IssueReadModel.fs" />
-    <Compile Include="ReadModels.fs" />
+    <Compile Include="SQL.fs" />
     <None Include="App.config" />
     <Compile Include="Program.fs" />
     <None Include="packages.config" />

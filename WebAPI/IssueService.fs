@@ -25,20 +25,15 @@ type M = CLIMutableAttribute
 [<Route("/issue/{id}/take")>]
 [<M>] type TakeIssueRequest = { id: string; user: string }
 
-type IssueService(loadIssueEvents, saveIssueEvent, 
-                  readModels: IReadModels) =
+type IssueService(loadIssueEvents, saveIssueEvent, loadIssue, loadReportedIssues) =
 
     interface IService
 
     member this.Get (req:IssueRequest) =
-        let issue = readModels.GetIssue(req.id)
-        issue
+        loadIssue req.id
 
-    (*member this.Get (req:ReportedIssuesRequest) =
-        loadEvents (fun e -> e.Event.EventType = "Reported") ("IssuesBy-"+req.User)
-        |> Seq.map (function 
-                    | Issue.Reported({Summary=summary; Number=number}) -> { Number=number; Summary=summary }
-                    | _ -> failwith "invalid event type")*)
+    member this.Get (req:ReportedIssuesRequest) =
+        loadReportedIssues req.User
     member this.Post (req:ReportRequest) =
         let id = "Issue-" + Guid.NewGuid().ToString("N")
         Issue.Report(1, req.user, req.summary) 
@@ -58,4 +53,7 @@ type IssueService(loadIssueEvents, saveIssueEvent,
         let conn = EventStore.connect ("localhost", 1113)
         let load = EventStore.load conn Serialization.deserialize
         let save = EventStore.save conn Serialization.serialize
-        IssueService(load, save, SqlReadModels())
+        let db = SQL.Schema.GetDataContext()
+        IssueService(load, save, 
+            SQL.loadIssue db,
+            SQL.loadReportedIssues db)
