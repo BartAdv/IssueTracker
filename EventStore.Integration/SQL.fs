@@ -22,16 +22,16 @@ let mapIssue (res:Schema.ServiceTypes.Issue) =
         Summary = "";
         Status = "";
         TakenBy = "";
-        TakenOn = None;
-        ClosedOn = None;
+        TakenOn = Nullable();
+        ClosedOn = Nullable();
         CancellationReason = "" }
     else
         { Reporter = res.Reporter;
         Summary = res.Summary;
-        Status = "";
-        TakenBy = "";
-        TakenOn = n2o res.TakenOn;
-        ClosedOn = n2o res.ClosedOn;
+        Status = res.Status;
+        TakenBy = res.TakenBy;
+        TakenOn = res.TakenOn;
+        ClosedOn = res.ClosedOn;
         CancellationReason = res.CancellationReason }
 
 let loadIssue (db:DataContext) (id:string) =
@@ -59,8 +59,8 @@ let storeIssue (db:DataContext) (id:string) (issue:IssueReadModel) =
     record.Summary <- issue.Summary
     record.Status <- issue.Status
     record.TakenBy <- issue.TakenBy
-    record.TakenOn <- o2n issue.TakenOn
-    record.ClosedOn <- o2n issue.ClosedOn
+    record.TakenOn <- issue.TakenOn
+    record.ClosedOn <- issue.ClosedOn
     record.CancellationReason <- issue.CancellationReason
 
 let storePosition (db:DataContext) name pos =
