@@ -1,4 +1,4 @@
-﻿module IssueTracker.Web.EventStore
+﻿module IssueTracker.EventStore.Integration.Common
 
 open System
 open EventStore.ClientAPI

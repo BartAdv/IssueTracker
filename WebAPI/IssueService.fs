@@ -3,7 +3,7 @@
 open System
 open ServiceStack.ServiceHost
 open IssueTracker
-open IssueTracker.Web
+open IssueTracker.EventStore.Integration
 open IssueTracker.ReadModels
 
 type M = CLIMutableAttribute
@@ -37,7 +37,7 @@ type IssueService(handle, loadIssue, loadReportedIssues) =
     member this.Post (req:ReportRequest) =
         let id = "Issue-" + Guid.NewGuid().ToString("N")
         handle id (fun issue ->
-            Issue.Report(1, req.user, req.summary) 
+            Issue.Report(req.user, req.summary) 
             |> Issue.exec issue)
         id
     member this.Post (req:TakeIssueRequest) =
@@ -49,15 +49,9 @@ type IssueService(handle, loadIssue, loadReportedIssues) =
     // this helps in object configuration and also aids type inference
     // so that code above can be clean of annotations as much as possible
     new() =
-        let conn = EventStore.connect ("localhost", 1113)
-        let load = EventStore.load conn Serialization.deserialize
-        let save = EventStore.save conn Serialization.serialize
-        let db = SQL.Schema.GetDataContext()
-        let handleIssue id f =
-            let issue = load id |> Seq.fold Issue.apply Issue.zero
-            f issue |> save id
-
-        IssueService(handleIssue, 
+        let conn = Common.connect ("localhost", 1113)
+        let db = ReadModels.SQL.Schema.GetDataContext()
+        IssueService(Issue.handle conn, 
             SQL.loadIssue db,
             SQL.loadReportedIssues db)
 

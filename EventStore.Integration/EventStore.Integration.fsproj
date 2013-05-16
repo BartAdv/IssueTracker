@@ -54,6 +54,9 @@
     <Compile Include="IssueReadModel.fs" />
     <Compile Include="SQL.fs" />
     <None Include="App.config" />
+    <Compile Include="EventStore.fs" />
+    <Compile Include="Issue.fs" />
+    <Compile Include="Events.fs" />
     <Compile Include="Program.fs" />
     <None Include="packages.config" />
   </ItemGroup>

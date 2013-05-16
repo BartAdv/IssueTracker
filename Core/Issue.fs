@@ -5,12 +5,13 @@ open System
 type User = string
 type Summary = string
 type Reason = string
-
-type ReportData = { Number: int; Reporter: User; Summary: Summary }
+type IssueNumber = int
+type ReportData = { Reporter: User; Summary: Summary }
 type TakeData = { User: User; Time: DateTime }
 
 type IssueState =
-  | Logged of ReportData
+  | Reported of ReportData
+  | Logged of IssueNumber
   | Active of User * DateTime
   | Closed of DateTime
   | Cancelled of Reason
@@ -21,12 +22,14 @@ let zero = { State = [] }
 
 type Event =
   | Reported of ReportData
+  | Logged of IssueNumber
   | Taken of User * DateTime
   | Closed of DateTime
   | Cancelled of Reason
 
 type Command =
-  | Report of int * User * Summary
+  | Report of User * Summary
+  | LogIssue of IssueNumber
   | Take of User * DateTime
   | Close of DateTime
   | Cancel of Reason
@@ -34,20 +37,25 @@ type Command =
 
 let apply issue =
   function
-  | Reported(data) -> { issue with State = [Logged(data)]}
+  | Reported(data) -> { issue with State = [IssueState.Reported(data)]}
+  | Logged(num) -> { issue with State = IssueState.Logged(num)::issue.State }
   | Taken(user, time) -> { issue with State = Active(user, time)::issue.State }
   | Closed(time) -> { issue with State = IssueState.Closed(time)::issue.State }
   | Cancelled(reason) -> { issue with State = IssueState.Cancelled(reason)::issue.State }
    
 let exec { State = state } =
   function
-    | Report(number, user, summary) ->
+    | Report(user, summary) ->
       match state with
-      | [] -> Reported({Number=number; Reporter=user; Summary=summary})
+      | [] -> Reported({Reporter=user; Summary=summary})
+      | _ -> invalidOp "state"
+    | LogIssue(number) ->
+      match state with
+      | IssueState.Reported(_)::_ -> Logged(number)
       | _ -> invalidOp "state"
     | Take (user, time) -> 
       match state with 
-      | Logged(_)::_ -> Taken (user, time)
+      | IssueState.Logged(_)::_ -> Taken (user, time)
       | _ -> invalidOp "state"
     | Close time -> 
       match state with 
@@ -55,5 +63,5 @@ let exec { State = state } =
       | _ -> invalidOp "state"
     | Cancel reason -> 
       match state with
-      | Logged(_)::[] | Active(_)::_ -> Cancelled reason
+      | IssueState.Logged(_)::[] | Active(_)::_ -> Cancelled reason
       | _ -> invalidOp "state"

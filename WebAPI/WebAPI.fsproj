@@ -84,7 +84,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <Compile Include="EventStore.fs" />
     <Compile Include="IssueService.fs" />
     <Compile Include="UserService.fs" />
     <Compile Include="AppHost.fs" />
