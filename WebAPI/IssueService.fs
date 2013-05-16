@@ -25,7 +25,7 @@ type M = CLIMutableAttribute
 [<Route("/issue/{id}/take")>]
 [<M>] type TakeIssueRequest = { id: string; user: string }
 
-type IssueService(loadIssueEvents, saveIssueEvent, loadIssue, loadReportedIssues) =
+type IssueService(handle, loadIssue, loadReportedIssues) =
 
     interface IService
 
@@ -36,15 +36,14 @@ type IssueService(loadIssueEvents, saveIssueEvent, loadIssue, loadReportedIssues
         loadReportedIssues req.User
     member this.Post (req:ReportRequest) =
         let id = "Issue-" + Guid.NewGuid().ToString("N")
-        Issue.Report(1, req.user, req.summary) 
-        |> Issue.exec Issue.zero
-        |> saveIssueEvent id
+        handle id (fun issue ->
+            Issue.Report(1, req.user, req.summary) 
+            |> Issue.exec issue)
         id
     member this.Post (req:TakeIssueRequest) =
-        let issue = loadIssueEvents req.id |> Seq.fold Issue.apply Issue.zero
-        Issue.Take(req.user, DateTime.Now)
-        |> Issue.exec issue
-        |> saveIssueEvent req.id
+        handle req.id (fun issue ->
+            Issue.Take(req.user, DateTime.Now)
+            |> Issue.exec issue)
         "trololo"
 
     // this helps in object configuration and also aids type inference
@@ -54,6 +53,11 @@ type IssueService(loadIssueEvents, saveIssueEvent, loadIssue, loadReportedIssues
         let load = EventStore.load conn Serialization.deserialize
         let save = EventStore.save conn Serialization.serialize
         let db = SQL.Schema.GetDataContext()
-        IssueService(load, save, 
+        let handleIssue id f =
+            let issue = load id |> Seq.fold Issue.apply Issue.zero
+            f issue |> save id
+
+        IssueService(handleIssue, 
             SQL.loadIssue db,
             SQL.loadReportedIssues db)
+
