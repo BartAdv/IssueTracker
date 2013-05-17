@@ -6,6 +6,7 @@ open IssueTracker.Issue
 
 type IssueReadModel = 
   { Reporter: string;
+    Number: int;
     Summary: string;
     Status: string;
     TakenBy: string;
@@ -16,6 +17,8 @@ type IssueReadModel =
 let apply state = function
     | Reported({Reporter=reporter; Summary=summary}) -> 
         { state with Reporter=reporter; Summary=summary; Status="Reported"}
+    | Logged(number) ->
+        { state with Number=number }
     | Taken(user, time) ->
         { state with TakenBy=user; TakenOn=Nullable(time); Status="Active" }
     | Closed(time) ->

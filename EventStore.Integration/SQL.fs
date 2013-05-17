@@ -18,20 +18,22 @@ let o2n o = match o with Some(v) -> Nullable(v) | None -> Nullable()
 let mapIssue (res:Schema.ServiceTypes.Issue) =
     // ugh
     if res = null then
-        { Reporter = "";
-        Summary = "";
-        Status = "";
-        TakenBy = "";
-        TakenOn = Nullable();
-        ClosedOn = Nullable();
+      { Reporter = ""
+        Number = 0
+        Summary = ""
+        Status = ""
+        TakenBy = ""
+        TakenOn = Nullable()
+        ClosedOn = Nullable()
         CancellationReason = "" }
     else
-        { Reporter = res.Reporter;
-        Summary = res.Summary;
-        Status = res.Status;
-        TakenBy = res.TakenBy;
-        TakenOn = res.TakenOn;
-        ClosedOn = res.ClosedOn;
+      { Reporter = res.Reporter
+        Number = res.Number.GetValueOrDefault()
+        Summary = res.Summary
+        Status = res.Status
+        TakenBy = res.TakenBy
+        TakenOn = res.TakenOn
+        ClosedOn = res.ClosedOn
         CancellationReason = res.CancellationReason }
 
 let loadIssue (db:DataContext) (id:string) =
@@ -56,6 +58,7 @@ let storeIssue (db:DataContext) (id:string) (issue:IssueReadModel) =
         record <- Schema.ServiceTypes.Issue(Id=id)
         db.Issue.InsertOnSubmit(record)
     record.Reporter <- issue.Reporter
+    record.Number <- Nullable(issue.Number)
     record.Summary <- issue.Summary
     record.Status <- issue.Status
     record.TakenBy <- issue.TakenBy
