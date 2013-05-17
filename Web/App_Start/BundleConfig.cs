@@ -11,7 +11,8 @@ namespace IssueTracker.Web
         public static void RegisterBundles(BundleCollection bundles)
         {
             bundles.Add(new ScriptBundle("~/bundles/angular")
-                .IncludeDirectory("~/Scripts/angular", "*.js"));
+                .Include("~/Scripts/angular/angular.js",
+                  "~/Scripts/angular/angular-resource.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/app")
                 .Include("~/Scripts/app/services.js",

@@ -8,11 +8,11 @@ open IssueTracker.ReadModels
 
 type M = CLIMutableAttribute
 
-[<Route("/user/{User}/issues/reported")>]
+[<Route("/user/{user}/issues/reported", "GET")>]
 [<M>] type ReportedIssuesRequest = { User: string }
 [<M>] type ReportedIssue = { Number: int; Summary: string }
 
-[<Route("/user/{User}/issues/report")>]
+[<Route("/user/{user}/issues/reported", "POST")>]
 [<M>] type ReportRequest = { user: string; summary: string }
 [<M>] type ReportResponse = { id: string }
 
@@ -39,6 +39,7 @@ type IssueService(handle, loadIssue, loadReportedIssues) =
         Issue.Report(req.user, req.summary) 
         |>  handle id
         id
+
     member this.Post (req:TakeIssueRequest) =
         Issue.Take(req.user, DateTime.Now)
         |> handle req.id 

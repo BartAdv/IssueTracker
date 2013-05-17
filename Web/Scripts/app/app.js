@@ -1,6 +1,6 @@
-angular.module('IssueTracker', [])
+angular.module('IssueTracker', ["IssueService"])
 .config(['$routeProvider', function ($routeProvider) {
     $routeProvider
-        .when('/index', { templateUrl: 'Partials/Issues.html', controller: IssuesCtrl })
-        .otherwise({ redirectTo: '/index' });
+        .when('/user/:user', { templateUrl: 'Partials/Issues.html', controller: IssueCtrl })
+        .otherwise({ redirectTo: '/user/testuser' });
 }]);
