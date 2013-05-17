@@ -36,14 +36,12 @@ type IssueService(handle, loadIssue, loadReportedIssues) =
         loadReportedIssues req.User
     member this.Post (req:ReportRequest) =
         let id = "Issue-" + Guid.NewGuid().ToString("N")
-        handle id (fun issue ->
-            Issue.Report(req.user, req.summary) 
-            |> Issue.exec issue)
+        Issue.Report(req.user, req.summary) 
+        |>  handle id
         id
     member this.Post (req:TakeIssueRequest) =
-        handle req.id (fun issue ->
-            Issue.Take(req.user, DateTime.Now)
-            |> Issue.exec issue)
+        Issue.Take(req.user, DateTime.Now)
+        |> handle req.id 
         "trololo"
 
     // this helps in object configuration and also aids type inference
