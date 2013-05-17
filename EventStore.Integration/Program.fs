@@ -19,8 +19,13 @@ let main argv =
     Events.IssueUpdated
     |> Event.add (function 
         | Issue.Event.Reported(_), id -> 
-            Issue.LogIssue(!issueCounter + 1)
-            |> Issue.handle conn id
+            Issue.handleF conn id (fun issue ->
+                match issue.State with
+                | Issue.IssueState.Reported(_)::[] -> 
+                    Issue.LogIssue(!issueCounter + 1)
+                    |> Issue.exec issue
+                    |> Some
+                | _ -> None)
             issueCounter := !issueCounter + 1
         | _,_-> ())
 
